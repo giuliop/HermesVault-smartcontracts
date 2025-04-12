@@ -186,48 +186,6 @@ func CreateApp(appName string, methodName string, args []any, sourceDir string,
 	return appId, res.ConfirmedRound, nil
 }
 
-// DeleteAppFromId deletes an app and returns the transaction id
-func DeleteAppFromId(appId uint64, deleteMethodName string, appSchema *Arc32Schema) error {
-	algodClient := GetAlgodClient()
-
-	creator := GetDefaultAccount()
-
-	sp, err := algodClient.SuggestedParams().Do(context.Background())
-	if err != nil {
-		return fmt.Errorf("failed to get suggested params: %v", err)
-	}
-	waitRounds := uint64(8)
-	sp.LastRoundValid = sp.FirstRoundValid + types.Round(waitRounds)
-	deleteMethod, err := appSchema.Contract.GetMethodByName("update")
-	if err != nil {
-		return fmt.Errorf("failed to get update method: %v", err)
-	}
-	txn, err := transaction.MakeApplicationDeleteTx(
-		appId, [][]byte{deleteMethod.GetSelector()}, nil, nil, nil, sp,
-		creator.Address, nil, types.Digest{}, [32]byte{}, types.ZeroAddress,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to make delete txn: %v", err)
-	}
-	txid, stx, err := crypto.SignTransaction(creator.PrivateKey, txn)
-	if err != nil {
-		return fmt.Errorf("failed to sign transaction: %v", err)
-	}
-	_, err = algodClient.SendRawTransaction(stx).Do(context.Background())
-	if err != nil {
-		return fmt.Errorf("failed to send transaction: %v", err)
-	}
-	_, err = transaction.WaitForConfirmation(algodClient, txid, waitRounds,
-		context.Background())
-	if err != nil {
-		return fmt.Errorf("error waiting for confirmation:  %v", err)
-	}
-
-	log.Printf("App %d deleted with transaction %s\n", appId, txid)
-
-	return nil
-}
-
 // EnsureFunded checks if the given address has at least min microalgos and if not,
 // tops it up from the default account
 func EnsureFunded(address string, min uint64) error {

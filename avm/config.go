@@ -62,7 +62,7 @@ func initCofig(network deployed.Network) {
 }
 
 // readAlgodConfig reads the algod URL and token from the env file of the network
-// The base dir is deployed.EnvDirPath and the env file is named <network>.env
+// The base dir is `deployed.<EnvDirPath>` and the env file is `<network>.env`
 func readAlgodConfig() *algodConfig {
 	if Network == nil {
 		log.Fatalf("avm config not initialized")

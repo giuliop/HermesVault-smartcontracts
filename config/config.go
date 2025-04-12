@@ -19,7 +19,6 @@ const (
 	WithDrawalMethodName = "withdraw"
 	NoOpMethodName       = "noop"
 	CreateMethodName     = "create"
-	UpdateMethodName     = "update"
 
 	WithdrawalMethodTxnFeeArgPos = 5
 )
